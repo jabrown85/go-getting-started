@@ -1,0 +1,49 @@
+version: 2.1
+description: Build Images with Cloud Native Buildpacks
+orbs:
+  cnb-orb:
+    orbs:
+      docker: circleci/docker@0.5.18
+    jobs:
+      build:
+        working_directory: /workspace
+        docker:
+        - image: << parameters.builder >>
+        parameters:
+          image-name:
+            type: string
+          builder:
+            type: string
+        steps:
+          - checkout
+          - run: mkdir /tmp/cache
+          - restore_cache:
+              key: cnb-cache-<< parameters.image-name >>-<< parameters.builder >>-{{ arch }}
+          - run:
+              command: /cnb/lifecycle/detector
+              name: Detect
+          - run:
+              command: /cnb/lifecycle/restorer -path /tmp/cache
+              name: Restore
+          # - run:
+          #     command: /cnb/lifecycle/analyzer << parameters.image-name >>
+          #     name: Analyze
+          - run:
+              command: /cnb/lifecycle/builder
+              name: Build
+          # - run:
+          #     command: /cnb/lifecycle/exporter << parameters.image-name >>
+          #     name: Export
+          - run:
+              command: /cnb/lifecycle/cacher -path /tmp/cache
+              name: Cache
+          - save_cache:
+              key: cnb-cache-<< parameters.image-name >>-<< parameters.builder >>-{{ arch }}-{{ epoch }}
+              paths:
+                - /tmp/cache
+workflows:
+  main:
+    jobs:
+      - cnb-orb/build:
+          image-name: jabrown85/go-getting-started:cnb
+          builder: heroku/buildpacks:18
