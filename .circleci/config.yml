@@ -6,41 +6,48 @@ orbs:
       docker: circleci/docker@0.5.18
     jobs:
       build:
-        working_directory: /workspace
         docker:
-        - image: << parameters.builder >>
+          - image: circleci/golang:latest
         parameters:
           image-name:
             type: string
           builder:
             type: string
         steps:
+          - setup_remote_docker:
+              docker_layer_caching: true
           - checkout
           - run: mkdir /tmp/cache
-          - restore_cache:
-              key: cnb-cache-<< parameters.image-name >>-<< parameters.builder >>-{{ arch }}
+          # - restore_cache:
+          #     key: cnb-cache-<< parameters.image-name >>-<< parameters.builder >>-{{ arch }}
           - run:
-              command: /cnb/lifecycle/detector
+              command: |
+                docker run -d -v /workspace -v /tmp/cache --name builder << parameters.builder >> tail -f /dev/null
+                docker cp /tmp/cache/. builder:/tmp/cache
+                docker cp $PWD/. builder:/workspace
+              name: Build container and copy contents
+          - run:
+              command: docker exec builder /cnb/lifecycle/detector
               name: Detect
-          - run:
-              command: /cnb/lifecycle/restorer -path /tmp/cache
-              name: Restore
           # - run:
-          #     command: /cnb/lifecycle/analyzer << parameters.image-name >>
+          #     command: docker exec builder /cnb/lifecycle/restorer -path /tmp/cache
+          #     name: Restore
+          # - run:
+          #     command: docker exec builder /cnb/lifecycle/analyzer << parameters.image-name >>
           #     name: Analyze
           - run:
-              command: /cnb/lifecycle/builder
+              command: docker exec builder /cnb/lifecycle/builder
               name: Build
           # - run:
-          #     command: /cnb/lifecycle/exporter << parameters.image-name >>
+          #     command: docker exec builder /cnb/lifecycle/exporter << parameters.image-name >>
           #     name: Export
-          - run:
-              command: /cnb/lifecycle/cacher -path /tmp/cache
-              name: Cache
-          - save_cache:
-              key: cnb-cache-<< parameters.image-name >>-<< parameters.builder >>-{{ arch }}-{{ epoch }}
-              paths:
-                - /tmp/cache
+          # - run:
+          #     command: docker exec builder /cnb/lifecycle/cacher -path /tmp/cache
+          #     name: Cache
+          # - save_cache:
+          #     key: cnb-cache-<< parameters.image-name >>-<< parameters.builder >>-{{ arch }}-{{ epoch }}
+          #     paths:
+          #       - /tmp/cache
 workflows:
   main:
     jobs:
