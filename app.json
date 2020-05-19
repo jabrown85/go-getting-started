@@ -18,6 +18,6 @@
   "website": "http://github.com/heroku/go-getting-started",
   "repository": "http://github.com/heroku/go-getting-started",
   "scripts": {
-    "postdeploy": "exit 1"
+    "postdeploy": "exit 0"
   }
 }
