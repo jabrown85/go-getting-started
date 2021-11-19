@@ -10,6 +10,6 @@
   "website": "http://github.com/heroku/go-getting-started",
   "repository": "http://github.com/heroku/go-getting-started",
   "environments": {
-    "buildpack": {}
+    "review": []
   }
 }
