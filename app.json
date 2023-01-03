@@ -11,7 +11,8 @@
   "repository": "http://github.com/heroku/go-getting-started",
   "formation": {
     "web": {
-      "size": "basic"
+      "size": "basic",
+      "quantity": 2
     }
   }
 }
