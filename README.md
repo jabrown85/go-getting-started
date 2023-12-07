@@ -1,5 +1,5 @@
 
-# go-getting-started - good
+# go-getting-started - good kick
 
 A barebones Go app, which can easily be deployed to Heroku.
 
