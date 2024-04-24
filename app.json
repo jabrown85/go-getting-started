@@ -8,5 +8,13 @@
     "example"
   ],
   "website": "http://github.com/heroku/go-getting-started",
-  "repository": "http://github.com/heroku/go-getting-started"
+  "repository": "http://github.com/heroku/go-getting-started",
+  "environments": {
+    "test": {
+      "scripts": {
+        "test-setup": "sleep 15 && echo nice_job",
+        "test": "echo sleeping && sleep 180 && echo leaving"
+      }
+    }
+  }
 }
