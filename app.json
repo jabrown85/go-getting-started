@@ -11,6 +11,7 @@
   "repository": "http://github.com/heroku/go-getting-started",
   "environments": {
     "test": {
+      "stack": "heroku-24",
       "scripts": {
         "test-setup": "sleep 15 && echo nice_job",
         "test": "echo sleeping && sleep 180 && echo leaving"
